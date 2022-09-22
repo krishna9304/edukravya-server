@@ -30,7 +30,7 @@ function haltOnTimedout(req: Request, res: Response, next: NextFunction) {
 
 app.get("/", (req: Request, res: Response, next: NextFunction) => {
   res.json({
-    data: {},
+    data: null,
     message: "Server running!",
   });
 });
