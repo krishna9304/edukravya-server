@@ -2,12 +2,15 @@ import { Document, model, ObjectId, Schema } from "mongoose";
 import crypto from "crypto";
 
 export interface UserInterface extends Document {
+  validPassword: (password: any) => boolean;
+  setPassword: (password: any) => void;
   _id: ObjectId;
   name: string;
   email: string;
   phone: string;
   bio: string;
-  password: string;
+  password?: string;
+  salt?: string;
   userType: ["student", "educator"];
   avatar: string;
   emailVerified: boolean;
