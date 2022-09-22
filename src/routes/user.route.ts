@@ -5,5 +5,6 @@ const userRouter: Application = Router();
 
 userRouter.post("/register", UserController.register);
 userRouter.post("/login", UserController.login);
+userRouter.get("/self", UserController.verifyToken);
 
 export default userRouter;
