@@ -3,6 +3,8 @@ import { compareParams, Info, ResponseTypes } from "../helpers/restHelper";
 import { UserServices } from "../services/user.service";
 import { UserFunctions } from "../database/functions/user.function";
 import userModel, { UserInterface } from "../database/models/user.model";
+import jwt from "jsonwebtoken";
+import { TOKEN_KEY } from "../constants";
 
 export const UserController = {
   async register(req: Request, res: Response, next: NextFunction) {
@@ -30,8 +32,15 @@ export const UserController = {
         return res.status(returnVal.getCode()).json(returnVal.getArray());
       }
       const user = UserServices.prepareUserData(reqBody);
-      const savedDoc = await UserFunctions.insert(user);
-      return res.status(201).json(savedDoc);
+      const savedDoc: any = await UserFunctions.insert(user);
+      const token = jwt.sign(
+        { email: savedDoc.email, phone: savedDoc.phone, _id: savedDoc._id },
+        TOKEN_KEY,
+        {
+          expiresIn: "2h",
+        }
+      );
+      return res.status(201).json({ user: savedDoc, token });
     } catch (error) {
       next(error);
     }
@@ -60,7 +69,14 @@ export const UserController = {
         if (user?.validPassword(req.body.password)) {
           delete user.password;
           delete user.salt;
-          return res.status(200).send(user);
+          const token = jwt.sign(
+            { email: user.email, phone: user.phone, _id: user._id },
+            TOKEN_KEY,
+            {
+              expiresIn: "2h",
+            }
+          );
+          return res.status(200).json({ user, token });
         } else {
           const returnVal = new Info(
             400,
@@ -80,5 +96,25 @@ export const UserController = {
     } catch (error) {
       next(error);
     }
+  },
+
+  async verifyToken(req: Request, res: Response, next: NextFunction) {
+    const token =
+      req.body.token || req.query.token || req.headers["x-access-token"];
+
+    if (!token) {
+      const returnVal = new Info(403, "No Token Found", ResponseTypes._ERROR_);
+      return res.status(returnVal.getCode()).json(returnVal.getArray());
+    }
+    try {
+      const decoded: any = jwt.verify(token, TOKEN_KEY);
+      const { _id } = decoded;
+      const user: any = await UserFunctions.getById(_id);
+      return res.status(200).json(user);
+    } catch (err) {
+      const returnVal = new Info(401, "Invalid Token", ResponseTypes._ERROR_);
+      return res.status(returnVal.getCode()).json(returnVal.getArray());
+    }
+    return next();
   },
 };
