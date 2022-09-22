@@ -1,4 +1,5 @@
 import { Document, model, ObjectId, Schema } from "mongoose";
+import crypto from "crypto";
 
 export interface UserInterface extends Document {
   _id: ObjectId;
@@ -6,26 +7,35 @@ export interface UserInterface extends Document {
   email: string;
   phone: string;
   bio: string;
-  userType: ["user", "guide", "merchant"];
+  password: string;
+  userType: ["student", "educator"];
   avatar: string;
   emailVerified: boolean;
   phoneVerified: boolean;
   billingAccountId: string;
-  guideAwaitingApproval: boolean;
 }
 
 const User: Schema = new Schema({
   name: { type: String, required: true },
-  email: { type: String, required: false },
-  phone: { type: String, required: true },
+  email: { type: String, required: false, unique: true },
+  phone: { type: String, required: true, unique: true },
+  password: {
+    type: String,
+    required: true,
+  },
+  salt: {
+    type: String,
+    required: true,
+  },
   avatar: {
     type: String,
     default: "https://avatar.tobi.sh/tobiaslins.svg?text=TL",
   },
   userType: {
     type: String,
-    default: "user",
-    enum: ["user", "educator"],
+    default: "student",
+    required: true,
+    enum: ["student", "educator"],
   },
   bio: {
     type: String,
@@ -40,10 +50,30 @@ const User: Schema = new Schema({
     default: false,
   },
   billingAccountId: {
-    type: String,
-    required: false,
-    default: "",
+    type: Schema.Types.ObjectId,
+    default: null,
+    ref: "billingAccount",
+  },
+  educatorId: {
+    type: Schema.Types.ObjectId,
+    default: null,
+    ref: "educator",
   },
 });
+
+User.methods.setPassword = function (password: string) {
+  this.salt = crypto.randomBytes(16).toString("hex");
+
+  this.password = crypto
+    .pbkdf2Sync(password, this.salt, 1000, 64, `sha512`)
+    .toString(`hex`);
+};
+
+User.methods.validPassword = function (password: string) {
+  let hash = crypto
+    .pbkdf2Sync(password, this.salt, 1000, 64, `sha512`)
+    .toString(`hex`);
+  return this.password === hash;
+};
 
 export default model("user", User);
