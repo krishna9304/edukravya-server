@@ -37,8 +37,8 @@ export const UserFunctions = {
   getById(_id: ObjectId) {
     return new Promise(async (resolve, reject) => {
       try {
-        const allusers = await userModel.findById(_id);
-        resolve(allusers);
+        const user = await userModel.findById(_id);
+        resolve(user);
       } catch (error) {
         reject(error);
       }
@@ -47,8 +47,10 @@ export const UserFunctions = {
   get(filter: any) {
     return new Promise(async (resolve, reject) => {
       try {
-        const allusers = await userModel.find({ ...filter });
-        resolve(allusers);
+        const usersMatched: Array<UserInterface> = await userModel.find({
+          ...filter,
+        });
+        resolve(usersMatched);
       } catch (error) {
         reject(error);
       }
