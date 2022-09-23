@@ -17,7 +17,7 @@ const app: Application = express();
 // Middlewares
 app.use(cors());
 app.use(timeout("120s"));
-app.use(bodyParser());
+app.use(bodyParser.json());
 app.use(haltOnTimedout);
 app.use(morgan("dev"));
 
