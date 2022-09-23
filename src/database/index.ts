@@ -12,11 +12,11 @@ connect(uri);
 
 const db: Connection = connection;
 
-db.on("open", () => {
+db.on("open", (): void => {
   console.log(colors.bgCyan("\tConnected to the database successfully"));
 });
 
-db.once("error", () => {
+db.once("error", (): void => {
   console.error(
     colors.red("\tThere was some problem connecting to the database")
   );

@@ -5,12 +5,17 @@ import { UserFunctions } from "../database/functions/user.function";
 import userModel, { UserInterface } from "../database/models/user.model";
 import jwt from "jsonwebtoken";
 import { TOKEN_KEY } from "../constants";
+import { ObjectId } from "mongoose";
 
 export const UserController = {
-  async register(req: Request, res: Response, next: NextFunction) {
-    const reqBody = req.body;
+  async register(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<any, Record<string, any>> | undefined> {
+    const reqBody: any = req.body;
     const paramsReq: Array<string> = ["name", "email", "password", "phone"];
-    const errors = compareParams(paramsReq, reqBody);
+    const errors: String[] = compareParams(paramsReq, reqBody);
     if (errors.length) {
       const returnVal = new Info(
         400,
@@ -22,7 +27,7 @@ export const UserController = {
     }
 
     try {
-      const errors = await UserServices.checkConflicts(reqBody);
+      const errors: String[] = await UserServices.checkConflicts(reqBody);
       if (errors.length) {
         const returnVal = new Info(
           400,
@@ -31,9 +36,9 @@ export const UserController = {
         );
         return res.status(returnVal.getCode()).json(returnVal.getArray());
       }
-      const user = UserServices.prepareUserData(reqBody);
+      const user: UserInterface = UserServices.prepareUserData(reqBody);
       const savedDoc: any = await UserFunctions.insert(user);
-      const token = jwt.sign(
+      const token: string = jwt.sign(
         { email: savedDoc.email, phone: savedDoc.phone, _id: savedDoc._id },
         TOKEN_KEY,
         {
@@ -46,10 +51,14 @@ export const UserController = {
     }
   },
 
-  async login(req: Request, res: Response, next: NextFunction) {
-    const reqBody = req.body;
+  async login(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<any, Record<string, any>> | undefined> {
+    const reqBody: any = req.body;
     const paramsReq: Array<string> = ["email", "password"];
-    const errors = compareParams(paramsReq, reqBody);
+    const errors: String[] = compareParams(paramsReq, reqBody);
     if (errors.length) {
       const returnVal = new Info(
         400,
@@ -61,7 +70,9 @@ export const UserController = {
     }
 
     try {
-      const userExists = await userModel.exists({ email: reqBody.email });
+      const userExists: {
+        _id: ObjectId;
+      } | null = await userModel.exists({ email: reqBody.email });
       if (userExists) {
         const user: UserInterface | null = await userModel.findOne({
           email: reqBody.email,
@@ -69,7 +80,7 @@ export const UserController = {
         if (user?.validPassword(req.body.password)) {
           delete user.password;
           delete user.salt;
-          const token = jwt.sign(
+          const token: string = jwt.sign(
             { email: user.email, phone: user.phone, _id: user._id },
             TOKEN_KEY,
             {
@@ -99,7 +110,7 @@ export const UserController = {
   },
 
   async verifyToken(req: Request, res: Response, next: NextFunction) {
-    const token =
+    const token: string =
       req.body.token || req.query.token || req.headers["x-access-token"];
 
     if (!token) {
@@ -108,13 +119,12 @@ export const UserController = {
     }
     try {
       const decoded: any = jwt.verify(token, TOKEN_KEY);
-      const { _id } = decoded;
+      const { _id }: { _id: ObjectId } = decoded;
       const user: any = await UserFunctions.getById(_id);
       return res.status(200).json(user);
     } catch (err) {
       const returnVal = new Info(401, "Invalid Token", ResponseTypes._ERROR_);
       return res.status(returnVal.getCode()).json(returnVal.getArray());
     }
-    return next();
   },
 };

@@ -4,14 +4,18 @@ import { TOKEN_KEY } from "../constants";
 import { UserFunctions } from "../database/functions/user.function";
 import { Info, ResponseTypes } from "../helpers/restHelper";
 
-const config = process.env;
+const configN = process.env;
 
-const Authenticate = async (
+const Authenticate: (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => Promise<void | Response<any, Record<string, any>>> = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const token =
+  const token: string =
     req.body.token || req.query.token || req.headers["x-access-token"];
 
   if (!token) {

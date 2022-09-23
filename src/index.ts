@@ -39,7 +39,11 @@ app.get("/", (req: Request, res: Response, next: NextFunction) => {
 app.use("/api", mainRouter);
 
 // 404 Route
-const route404 = (req: Request, res: Response, next: NextFunction) => {
+const route404: (req: Request, res: Response, next: NextFunction) => void = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   res.json({ message: "Route not Found", data: {} });
 };
 

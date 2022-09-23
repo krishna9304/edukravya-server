@@ -9,10 +9,14 @@ export class Info {
     this.type = type;
   }
 
-  getArray() {
+  getArray(): {
+    code: number;
+    message: string;
+    type: string;
+  } {
     return { code: this.code, message: this.message, type: this.type };
   }
-  getCode() {
+  getCode(): number {
     return this.code;
   }
 }
@@ -26,10 +30,13 @@ export const ResponseTypes: ResponseTypesInterface = {
   _INFO_: "INFO",
 };
 
-export const compareParams = (paramsReq: Array<string>, reqBody: Object) => {
+export const compareParams: (
+  paramsReq: Array<string>,
+  reqBody: Object
+) => String[] = (paramsReq: Array<string>, reqBody: Object): String[] => {
   let errors: Array<String> = [];
-  const keys = Object.keys(reqBody);
-  paramsReq.forEach((val: string) => {
+  const keys: string[] = Object.keys(reqBody);
+  paramsReq.forEach((val: string): void => {
     if (!keys.includes(val)) errors.push(val);
   });
   return errors;
