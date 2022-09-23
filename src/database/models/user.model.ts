@@ -1,4 +1,11 @@
-import { Document, model, ObjectId, Schema } from "mongoose";
+import {
+  Document,
+  Mixed,
+  model,
+  ObjectId,
+  Schema,
+  StringSchemaDefinition,
+} from "mongoose";
 import crypto from "crypto";
 
 export interface UserInterface extends Document {
@@ -11,14 +18,15 @@ export interface UserInterface extends Document {
   bio: string;
   password?: string;
   salt?: string;
-  userType: ["student", "educator"];
+  userType: "student" | "educator";
   avatar: string;
   emailVerified: boolean;
   phoneVerified: boolean;
-  billingAccountId: string;
+  billingAccountId: Mixed | StringSchemaDefinition | undefined;
+  educatorId: Mixed | StringSchemaDefinition | undefined;
 }
 
-const User: Schema = new Schema({
+const User = new Schema<UserInterface>({
   name: { type: String, required: true },
   email: { type: String, required: false, unique: true },
   phone: { type: String, required: true, unique: true },
