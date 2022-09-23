@@ -29,7 +29,7 @@ function haltOnTimedout(req: Request, res: Response, next: NextFunction) {
 }
 
 app.get("/", (req: Request, res: Response, next: NextFunction) => {
-  res.json({
+  res.status(200).json({
     data: null,
     message: "Server running!",
   });
@@ -44,7 +44,7 @@ const route404: (req: Request, res: Response, next: NextFunction) => void = (
   res: Response,
   next: NextFunction
 ): void => {
-  res.json({ message: "Route not Found", data: {} });
+  res.status(404).json({ message: "Route not Found", data: {} });
 };
 
 app.use("*", timeout("1200s"), route404);
@@ -52,7 +52,7 @@ app.use("*", timeout("1200s"), route404);
 // Error Handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error(err);
-  res.json({
+  res.status(500).json({
     message: "Something went wrong",
     errs: Array.isArray(err)
       ? err

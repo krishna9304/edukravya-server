@@ -4,3 +4,6 @@ export const dbUri: string = ISDEV
   ? "mongodb://localhost:27017/edukravya"
   : process.env.MONGO_URI + "";
 export const TOKEN_KEY: string = process.env.TOKEN_KEY || "thisismelookatme";
+export const SERVER_URL: string = ISDEV
+  ? "localhost:80"
+  : process.env.SERVER_URL + "";

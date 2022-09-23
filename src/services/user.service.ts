@@ -4,10 +4,10 @@ import validator from "validator";
 export const UserServices = {
   async checkConflicts(user: UserInterface) {
     let errors: Array<String> = [];
-    if (!validator.isEmail(user.email)) {
+    if (user.email && !validator.isEmail(user.email)) {
       errors.push("Unidentified Email.");
     }
-    if (!validator.isMobilePhone(String(user.phone))) {
+    if (user.phone && !validator.isMobilePhone(String(user.phone))) {
       errors.push("Unidentified Phone Number.");
     }
     try {
