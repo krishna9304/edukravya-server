@@ -6,7 +6,7 @@ dotenv.config();
 
 // const uri: string = `mongodb+srv://${process.env.USERNAME}:${process.env.PASS}@mycluster.sxsst.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`; //! requires USERNAME & PASS in .env
 
-const uri: string = dbUri;
+const uri: string = dbUri + "";
 
 connect(uri);
 
