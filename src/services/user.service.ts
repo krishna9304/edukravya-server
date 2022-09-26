@@ -11,6 +11,8 @@ export const UserServices = {
       errors.push("Unidentified Phone Number.");
     }
     try {
+      const userIdExists = await userModel.exists({ userId: user.userId });
+      if (userIdExists) errors.push("This userId is already in use");
       const emailExists = await userModel.exists({ email: user.email });
       if (emailExists) errors.push("This email is already in use");
       const phoneExists = await userModel.exists({ phone: user.phone });

@@ -4,7 +4,7 @@ import { UserServices } from "../services/user.service";
 import { UserFunctions } from "../database/functions/user.function";
 import userModel, { UserInterface } from "../database/models/user.model";
 import jwt from "jsonwebtoken";
-import { ISDEV, SERVER_URL, TOKEN_KEY } from "../constants";
+import { SERVER_URL, TOKEN_KEY } from "../constants";
 import { ObjectId } from "mongoose";
 
 export const UserController = {
@@ -14,7 +14,13 @@ export const UserController = {
     next: NextFunction
   ): Promise<Response<any, Record<string, any>> | undefined> {
     const reqBody: any = req.body;
-    const paramsReq: Array<string> = ["name", "email", "password", "phone"];
+    const paramsReq: Array<string> = [
+      "userId",
+      "name",
+      "email",
+      "password",
+      "phone",
+    ];
     const errors: String[] = compareParams(paramsReq, reqBody);
     if (errors.length) {
       const returnVal = new Info(
@@ -57,7 +63,7 @@ export const UserController = {
     next: NextFunction
   ): Promise<Response<any, Record<string, any>> | undefined> {
     const reqBody: any = req.body;
-    const paramsReq: Array<string> = ["email", "password"];
+    const paramsReq: Array<string> = ["userId", "password"];
     const errors: String[] = compareParams(paramsReq, reqBody);
     if (errors.length) {
       const returnVal = new Info(
@@ -72,16 +78,21 @@ export const UserController = {
     try {
       const userExists: {
         _id: ObjectId;
-      } | null = await userModel.exists({ email: reqBody.email });
+      } | null = await userModel.exists({ userId: reqBody.userId });
       if (userExists) {
         const user: UserInterface | null = await userModel.findOne({
-          email: reqBody.email,
+          userId: reqBody.userId,
         });
         if (user?.validPassword(req.body.password)) {
           delete user.password;
           delete user.salt;
           const token: string = jwt.sign(
-            { email: user.email, phone: user.phone, _id: user._id },
+            {
+              email: user.email,
+              phone: user.phone,
+              _id: user._id,
+              userId: user.userId,
+            },
             TOKEN_KEY,
             {
               expiresIn: "2h",
