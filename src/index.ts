@@ -1,7 +1,6 @@
 require("dotenv").config();
 import express, { Application, NextFunction, Request, Response } from "express";
 import colors from "ansi-colors";
-import { createServer } from "http";
 import "./database";
 import mainRouter from "./routes";
 import bodyParser from "body-parser";
@@ -10,13 +9,15 @@ import { ISDEV, PORT } from "./constants";
 import path from "path";
 import cors from "cors";
 import morgan from "morgan";
-import "./realtime";
-
 // Main Application
 const app: Application = express();
 
 // Middlewares
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:5173"],
+  })
+);
 app.use(timeout("120s"));
 app.use(bodyParser.json());
 app.use(haltOnTimedout);
@@ -63,10 +64,9 @@ app.use((err: any, _: Request, res: Response, __: NextFunction) => {
   });
 });
 
-export const server = createServer(app);
-
-server.listen(PORT, () => {
+export const server = app.listen(PORT, () => {
   ISDEV && console.clear();
+  require("./realtime");
   console.log(
     ` Server running on PORT \n\t${
       ISDEV
