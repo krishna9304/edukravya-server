@@ -13,11 +13,7 @@ import morgan from "morgan";
 const app: Application = express();
 
 // Middlewares
-app.use(
-  cors({
-    origin: ["http://localhost:5173"],
-  })
-);
+app.use(cors());
 app.use(timeout("120s"));
 app.use(bodyParser.json());
 app.use(haltOnTimedout);
