@@ -12,6 +12,7 @@ export interface UserInterface extends Document {
   validPassword: (password: any) => boolean;
   setPassword: (password: any) => void;
   _id: ObjectId;
+  userId: string;
   name: string;
   email: string;
   phone: string;
@@ -27,6 +28,7 @@ export interface UserInterface extends Document {
 }
 
 const User = new Schema<UserInterface>({
+  userId: { type: String, required: true, unique: true },
   name: { type: String, required: true },
   email: { type: String, required: false, unique: true },
   phone: { type: String, required: true, unique: true },

@@ -1,7 +1,7 @@
 require("dotenv").config();
 import express, { Application, NextFunction, Request, Response } from "express";
 import colors from "ansi-colors";
-import { Server } from "http";
+import { createServer } from "http";
 import "./database";
 import mainRouter from "./routes";
 import bodyParser from "body-parser";
@@ -10,6 +10,7 @@ import { ISDEV, PORT } from "./constants";
 import path from "path";
 import cors from "cors";
 import morgan from "morgan";
+import "./realtime";
 
 // Main Application
 const app: Application = express();
@@ -40,9 +41,9 @@ app.use("/api", mainRouter);
 
 // 404 Route
 const route404: (req: Request, res: Response, next: NextFunction) => void = (
-  req: Request,
+  _: Request,
   res: Response,
-  next: NextFunction
+  __: NextFunction
 ): void => {
   res.status(404).json({ message: "Route not Found", data: {} });
 };
@@ -50,7 +51,7 @@ const route404: (req: Request, res: Response, next: NextFunction) => void = (
 app.use("*", timeout("1200s"), route404);
 
 // Error Handler
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+app.use((err: any, _: Request, res: Response, __: NextFunction) => {
   console.error(err);
   res.status(500).json({
     message: "Something went wrong",
@@ -62,8 +63,9 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-// TODO: init sockets
-const server: Server = app.listen(PORT, () => {
+export const server = createServer(app);
+
+server.listen(PORT, () => {
   ISDEV && console.clear();
   console.log(
     ` Server running on PORT \n\t${
