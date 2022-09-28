@@ -1,10 +1,15 @@
 import colors from "ansi-colors";
 import { Server, Socket } from "socket.io";
 import { server } from "..";
+import { CLIENT_URL } from "../constants";
 import { SocketActions } from "./actions";
 
 // init socket server
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: [CLIENT_URL],
+  },
+});
 
 let onlineUsers = new Map();
 

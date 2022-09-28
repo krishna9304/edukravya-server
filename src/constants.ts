@@ -7,3 +7,4 @@ export const TOKEN_KEY: string = process.env.TOKEN_KEY || "thisismelookatme";
 export const SERVER_URL: string = ISDEV
   ? "localhost:80"
   : process.env.SERVER_URL + "";
+export const CLIENT_URL: string = process.env.CLIENT_URL + "";

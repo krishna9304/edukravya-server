@@ -5,15 +5,20 @@ import "./database";
 import mainRouter from "./routes";
 import bodyParser from "body-parser";
 import timeout from "connect-timeout";
-import { ISDEV, PORT } from "./constants";
+import { CLIENT_URL, ISDEV, PORT } from "./constants";
 import path from "path";
 import cors from "cors";
 import morgan from "morgan";
+
 // Main Application
 const app: Application = express();
 
 // Middlewares
-app.use(cors());
+app.use(
+  cors({
+    origin: [CLIENT_URL],
+  })
+);
 app.use(timeout("120s"));
 app.use(bodyParser.json());
 app.use(haltOnTimedout);
