@@ -5,12 +5,15 @@ import { UserFunctions } from "../database/functions/user.function";
 import { UserInterface } from "../database/models/user.model";
 import { Info, ResponseTypes } from "../helpers/restHelper";
 
+export interface RequestJwt extends Request {
+  user?: UserInterface;
+}
 const Authenticate: (
-  req: Request,
+  req: RequestJwt,
   res: Response,
   next: NextFunction
 ) => Promise<void | Response<any, Record<string, any>>> = async (
-  req: Request,
+  req: RequestJwt,
   res: Response,
   next: NextFunction
 ) => {
@@ -25,7 +28,16 @@ const Authenticate: (
     const decoded: any = jwt.verify(token, TOKEN_KEY);
     const { _id } = decoded;
     const user: UserInterface | null = await UserFunctions.getById(_id);
-    req.body.user = user;
+    if (user) {
+      req.user = user;
+    } else {
+      const returnVal = new Info(
+        401,
+        "Invalid user identified",
+        ResponseTypes._ERROR_
+      );
+      return res.status(returnVal.getCode()).json(returnVal.getArray());
+    }
   } catch (err) {
     const returnVal = new Info(401, "Invalid Token", ResponseTypes._ERROR_);
     return res.status(returnVal.getCode()).json(returnVal.getArray());

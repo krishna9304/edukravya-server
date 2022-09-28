@@ -6,6 +6,7 @@ import userModel, { UserInterface } from "../database/models/user.model";
 import jwt from "jsonwebtoken";
 import { SERVER_URL, TOKEN_KEY } from "../constants";
 import { ObjectId } from "mongoose";
+import { RequestJwt } from "../middlewares/jwt";
 
 export const UserController = {
   async register(
@@ -140,14 +141,12 @@ export const UserController = {
   },
 
   async updateUser(
-    req: Request,
+    req: RequestJwt,
     res: Response,
     next: NextFunction
   ): Promise<Response<any, Record<string, any>> | undefined> {
     const reqBody = req.body;
-    const user: UserInterface = reqBody.user;
-
-    delete reqBody.user;
+    const user: UserInterface | undefined = req.user;
 
     const updateQuery = reqBody;
 
@@ -165,13 +164,13 @@ export const UserController = {
         );
         return res.status(returnVal.getCode()).json(returnVal.getArray());
       }
-      if (reqBody.email && user.email !== reqBody.email) {
+      if (reqBody.email && user?.email !== reqBody.email) {
         updateQuery.emailVerified = false;
       }
-      if (reqBody.phone && user.phone !== reqBody.phone) {
+      if (reqBody.phone && user?.phone !== reqBody.phone) {
         updateQuery.phoneVerified = false;
       }
-      await UserFunctions.update({ _id: user._id }, { ...updateQuery });
+      await UserFunctions.update({ _id: user?._id }, { ...updateQuery });
       const returnVal = new Info(
         200,
         "User details updated successfully.",
@@ -201,6 +200,20 @@ export const UserController = {
         );
         return res.status(returnVal.getCode()).json(returnVal.getArray());
       }
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getAll(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<any, Record<string, any>> | undefined> {
+    try {
+      const { limit, page } = req.query;
+      const users = await UserFunctions.getAll(Number(limit), Number(page));
+      return res.status(200).json(users);
     } catch (error) {
       next(error);
     }
