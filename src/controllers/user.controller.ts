@@ -182,4 +182,27 @@ export const UserController = {
       next(err);
     }
   },
+
+  async getUser(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<any, Record<string, any>> | undefined> {
+    try {
+      const { userId } = req.params;
+      const users = await UserFunctions.get({ userId });
+      if (users.length) {
+        return res.status(200).json(users[0]);
+      } else {
+        const returnVal = new Info(
+          404,
+          "Invalid userId.",
+          ResponseTypes._ERROR_
+        );
+        return res.status(returnVal.getCode()).json(returnVal.getArray());
+      }
+    } catch (error) {
+      next(error);
+    }
+  },
 };
