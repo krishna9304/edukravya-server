@@ -1,5 +1,6 @@
 import { ObjectId } from "mongoose";
 import userModel, { UserInterface } from "../models/user.model";
+import crypto from "crypto";
 
 export const UserFunctions = {
   insert(userData: UserInterface): Promise<UserInterface> {
@@ -22,6 +23,13 @@ export const UserFunctions = {
   update(filter: any, data: any) {
     return new Promise(async (resolve, reject) => {
       try {
+        if (data.password) {
+          data.salt = crypto.randomBytes(16).toString("hex");
+
+          data.password = crypto
+            .pbkdf2Sync(data.password, data.salt, 1000, 64, `sha512`)
+            .toString(`hex`);
+        }
         const updated = await userModel.updateMany({ ...filter }, { ...data });
         resolve(updated);
       } catch (error) {
@@ -29,14 +37,17 @@ export const UserFunctions = {
       }
     });
   },
-  getAll(): Promise<UserInterface[]> {
+  getAll(limit: number = 10, page: number = 1): Promise<UserInterface[]> {
     return new Promise(
       async (
         resolve: (value: UserInterface[]) => void,
         reject: (reason?: any) => void
       ): Promise<void> => {
         try {
-          const allusers: UserInterface[] = await userModel.find({});
+          const allusers: UserInterface[] = await userModel
+            .find({})
+            .limit(limit * 1)
+            .skip((page - 1) * limit);
           resolve(allusers);
         } catch (error) {
           reject(error);
@@ -64,7 +75,7 @@ export const UserFunctions = {
       async (
         resolve: (value: UserInterface[]) => void,
         reject: (reason?: any) => void
-      ):Promise<void> => {
+      ): Promise<void> => {
         try {
           const usersMatched: UserInterface[] = await userModel.find({
             ...filter,

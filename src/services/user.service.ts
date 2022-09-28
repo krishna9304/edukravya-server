@@ -32,7 +32,6 @@ export const UserServices = {
         (words.length > 1 ? words[1][0].toUpperCase() : "")
       }`;
       user.avatar = avatarLink;
-      console.log(avatarLink);
     }
     return user;
   },
