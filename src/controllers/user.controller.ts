@@ -49,7 +49,7 @@ export const UserController = {
         { email: savedDoc.email, phone: savedDoc.phone, _id: savedDoc._id },
         TOKEN_KEY,
         {
-          expiresIn: "2h",
+          expiresIn: "2d",
         }
       );
       return res.status(201).json({ user: savedDoc, token });
@@ -96,7 +96,7 @@ export const UserController = {
             },
             TOKEN_KEY,
             {
-              expiresIn: "2h",
+              expiresIn: "2d",
             }
           );
           return res.status(200).json({ user, token });
@@ -133,7 +133,19 @@ export const UserController = {
       const decoded: any = jwt.verify(token, TOKEN_KEY);
       const { _id }: { _id: ObjectId } = decoded;
       const user: any = await UserFunctions.getById(_id);
-      return res.status(200).json(user);
+      const newToken: string = jwt.sign(
+        {
+          email: user.email,
+          phone: user.phone,
+          _id: user._id,
+          userId: user.userId,
+        },
+        TOKEN_KEY,
+        {
+          expiresIn: "2d",
+        }
+      );
+      return res.status(200).json({ user, token: newToken });
     } catch (err) {
       const returnVal = new Info(401, "Invalid Token", ResponseTypes._ERROR_);
       return res.status(returnVal.getCode()).json(returnVal.getArray());
@@ -151,7 +163,8 @@ export const UserController = {
     const updateQuery = reqBody;
 
     if (req.file) {
-      const url = req.protocol + "://" + SERVER_URL + "/" + req.file.filename;
+      const url =
+        req.protocol + "://" + SERVER_URL + "/static/" + req.file.filename;
       updateQuery.avatar = url;
     }
     try {

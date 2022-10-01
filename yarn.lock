@@ -181,6 +181,13 @@
     "@types/mime" "*"
     "@types/node" "*"
 
+"@types/socketio-jwt@^4.6.2":
+  version "4.6.2"
+  resolved "https://registry.yarnpkg.com/@types/socketio-jwt/-/socketio-jwt-4.6.2.tgz#b71646653d3245b3a4dc06ba1081eb4fddfa1bfe"
+  integrity sha512-r4P9eW57klN8PNn6CzQfGaVxiNFOt90sxm79kEm/xQMlC49F/H6zxCGT+qyLVYHWh6CcHMn1yGSLfVgDKMDlOA==
+  dependencies:
+    socketio-jwt "*"
+
 "@types/uuid@^8.3.3":
   version "8.3.4"
   resolved "https://registry.npmjs.org/@types/uuid/-/uuid-8.3.4.tgz"
@@ -1664,7 +1671,7 @@ json5@^0.5.1:
   resolved "https://registry.npmjs.org/json5/-/json5-0.5.1.tgz"
   integrity sha512-4xrs1aW+6N5DalkqSVA8fxh458CXvR99WU8WLKmq4v8eWAL86Xo3BVqyd3SkA9wEVjCMqyvvRRkshAdOnBp5rw==
 
-jsonwebtoken@^8.5.1:
+jsonwebtoken@^8.3.0, jsonwebtoken@^8.5.1:
   version "8.5.1"
   resolved "https://registry.npmjs.org/jsonwebtoken/-/jsonwebtoken-8.5.1.tgz"
   integrity sha512-XjwVfRS6jTMsqYs0EsuJ4LGxXV14zQybNd4L2r0UvbVnSF9Af8x7p5MzbJ90Ioz/9TI41/hTCvznF/loiSzn8w==
@@ -2072,6 +2079,11 @@ object-inspect@^1.9.0:
   version "1.12.2"
   resolved "https://registry.npmjs.org/object-inspect/-/object-inspect-1.12.2.tgz"
   integrity sha512-z+cPxW0QGUp0mcqcsgQyLVRDoXFQbXOwBaqyF7VIgI4TWNQsDHrBpUQslRmIfAoYWdYzs6UlKJtB2XJpTaNSpQ==
+
+object-keys@~0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/object-keys/-/object-keys-0.4.0.tgz#28a6aae7428dd2c3a92f3d95f21335dd204e0336"
+  integrity sha512-ncrLw+X55z7bkl5PnUvHwFK9FcGuFYo9gtjws2XtSzL+aZ8tm830P60WJ0dSmFVaSalWieW5MD7kEdnXda9yJw==
 
 object-visit@^1.0.0:
   version "1.0.1"
@@ -2531,6 +2543,14 @@ socket.io@^4.5.2:
     socket.io-adapter "~2.4.0"
     socket.io-parser "~4.2.0"
 
+socketio-jwt@*, socketio-jwt@^4.6.2:
+  version "4.6.2"
+  resolved "https://registry.yarnpkg.com/socketio-jwt/-/socketio-jwt-4.6.2.tgz#ee06a9d40f68ccccdece427ed80dc31a80d692c6"
+  integrity sha512-bcCnit/cCvqtC921Gwuqor+LpLKrpREmPACVgLfdbFBL95w2nPF7lOxsOxyeRrhc5Kot/1jUSW5+kLo23zJIMA==
+  dependencies:
+    jsonwebtoken "^8.3.0"
+    xtend "~2.1.2"
+
 socks@^2.7.0:
   version "2.7.0"
   resolved "https://registry.npmjs.org/socks/-/socks-2.7.0.tgz"
@@ -2894,6 +2914,13 @@ xtend@^4.0.0:
   version "4.0.2"
   resolved "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz"
   integrity sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==
+
+xtend@~2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/xtend/-/xtend-2.1.2.tgz#6efecc2a4dad8e6962c4901b337ce7ba87b5d28b"
+  integrity sha512-vMNKzr2rHP9Dp/e1NQFnLQlwlhp9L/LfvnsVdHxN1f+uggyVI3i08uD14GPvCToPkdsRfyPqIyYGmIk58V98ZQ==
+  dependencies:
+    object-keys "~0.4.0"
 
 y18n@^5.0.5:
   version "5.0.8"

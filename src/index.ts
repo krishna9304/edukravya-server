@@ -5,22 +5,27 @@ import "./database";
 import mainRouter from "./routes";
 import bodyParser from "body-parser";
 import timeout from "connect-timeout";
-import { ISDEV, PORT } from "./constants";
+import { CLIENT_URL, ISDEV, PORT, UPLOAD_PATH } from "./constants";
 import path from "path";
 import cors from "cors";
 import morgan from "morgan";
+
 // Main Application
 const app: Application = express();
 
 // Middlewares
-app.use(cors());
+app.use(
+  cors({
+    origin: [CLIENT_URL],
+  })
+);
 app.use(timeout("120s"));
 app.use(bodyParser.json());
 app.use(haltOnTimedout);
-app.use(morgan("dev"));
+// app.use(morgan("dev"));
 
 // Static file serving
-app.use("/static", express.static(path.join(__dirname, "public")));
+app.use("/static", express.static(UPLOAD_PATH));
 
 function haltOnTimedout(req: Request, res: Response, next: NextFunction) {
   if (!req.timedout) next();
