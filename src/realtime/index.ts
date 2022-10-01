@@ -2,7 +2,19 @@ import colors from "ansi-colors";
 import { Server, Socket } from "socket.io";
 import { server } from "..";
 import { CLIENT_URL } from "../constants";
-import { SocketActions } from "./actions";
+import {
+  ADD_USER,
+  connection,
+  disconnect,
+  GET_STREAM,
+  GET_USER,
+  GET_USER_REQUEST,
+  IS_ADMIN,
+  IS_USER_ONLINE,
+  JOIN_LECTURE,
+  LEAVE_ROOMS,
+  PAUSE_USER,
+} from "./actions";
 
 // init socket server
 const io = new Server(server, {
@@ -11,26 +23,64 @@ const io = new Server(server, {
   },
 });
 
-let onlineUsers = new Map();
+let onlineUsers: Map<string, string> = new Map();
 
-io.on(SocketActions.connection, (socket: Socket) => {
-  showAllOnlineUsers();
+// TODO: implement socketio-jwt
 
+io.on(connection, (socket: Socket) => {
+  // showAllOnlineUsers();
+  socket.emit(connection);
   // populating online users
-  socket.on(SocketActions.ADD_USER, (userId) => {
+  socket.on(ADD_USER, (userId) => {
     onlineUsers.set(socket.id, userId);
     showAllOnlineUsers();
   });
 
-  socket.on(SocketActions.IS_USER_ONLINE, (userId: String) => {
+  socket.on(IS_USER_ONLINE, (userId: String) => {
     let users: Array<String> = [...onlineUsers.values()];
     socket.emit("ONLINE_STATUS", users.includes(userId));
   });
 
-  socket.on(SocketActions.disconnect, () => {
+  socket.addListener(disconnect, () => {
     console.log("Client disconnected: " + colors.red(socket.id));
     onlineUsers.delete(socket.id);
   });
+
+  // webRTC
+  socket.on(
+    JOIN_LECTURE,
+    ({ lectureId, peerId }: { lectureId: string; peerId: string }): void => {
+      // verify user identity
+
+      socket.join(lectureId);
+      console.log(colors.blueBright(`[${socket.id}] joined ${lectureId}`));
+
+      // check if the connected user is admin;
+      // temporarily setting the first user as admin; pink;
+      const clientsInRoom: Set<string> | undefined =
+        io.sockets.adapter.rooms.get(lectureId);
+      const viewerCount: number = (clientsInRoom ? clientsInRoom.size : 0) - 1;
+
+      const isAdmin: boolean = !viewerCount;
+
+      if (isAdmin) {
+        socket.on(GET_USER, () => {
+          console.log("asking for peerIds");
+          socket.to(lectureId).emit(GET_USER);
+        });
+        socket.on(PAUSE_USER, () => {
+          socket.to(lectureId).emit(PAUSE_USER);
+        });
+        socket.on(GET_USER_REQUEST, () => {
+          socket.to(lectureId).emit(GET_USER);
+        });
+      } else {
+        io.to(lectureId).emit(GET_STREAM, peerId);
+        console.log("emit GET_STREAM", peerId);
+      }
+      socket.emit(IS_ADMIN, isAdmin);
+    }
+  );
 });
 
 // show all online users

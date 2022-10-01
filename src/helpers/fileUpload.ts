@@ -1,8 +1,9 @@
 import { Request } from "express";
 import multer, { Multer, StorageEngine } from "multer";
+import { UPLOAD_PATH } from "../constants";
 const { v4: uuidv4 } = require("uuid");
 
-const DIR = "./src/uploads";
+const DIR = UPLOAD_PATH;
 
 const storage: StorageEngine = multer.diskStorage({
   destination: (
