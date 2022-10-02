@@ -6,7 +6,6 @@ import mainRouter from "./routes";
 import bodyParser from "body-parser";
 import timeout from "connect-timeout";
 import { CLIENT_URL, ISDEV, PORT, UPLOAD_PATH } from "./constants";
-import path from "path";
 import cors from "cors";
 import morgan from "morgan";
 
@@ -22,7 +21,7 @@ app.use(
 app.use(timeout("120s"));
 app.use(bodyParser.json());
 app.use(haltOnTimedout);
-// app.use(morgan("dev"));
+app.use(morgan("dev"));
 
 // Static file serving
 app.use("/static", express.static(UPLOAD_PATH));
