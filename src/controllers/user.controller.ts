@@ -7,7 +7,9 @@ import jwt from "jsonwebtoken";
 import { SERVER_URL, TOKEN_KEY } from "../constants";
 import { ObjectId } from "mongoose";
 import { RequestJwt } from "../middlewares/jwt";
-import educatorModel from "../database/models/educator.model";
+import educatorModel, {
+  EducatorInterface,
+} from "../database/models/educator.model";
 
 export const UserController = {
   async register(
@@ -45,11 +47,12 @@ export const UserController = {
         return res.status(returnVal.getCode()).json(returnVal.getArray());
       }
       const user: UserInterface = UserServices.prepareUserData(reqBody);
-      const savedDoc: UserInterface = await UserFunctions.insert(user);
-      if (savedDoc.userType === "educator") {
+      if (user.userType === "educator") {
         const educator = new educatorModel();
-        await educator.save();
+        const savedEduDoc: EducatorInterface = await educator.save();
+        user.educatorId = savedEduDoc._id;
       }
+      const savedDoc: UserInterface = await UserFunctions.insert(user);
       const token: string = jwt.sign(
         { email: savedDoc.email, phone: savedDoc.phone, _id: savedDoc._id },
         TOKEN_KEY,
