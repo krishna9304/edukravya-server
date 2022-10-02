@@ -7,9 +7,7 @@ import jwt from "jsonwebtoken";
 import { SERVER_URL, TOKEN_KEY } from "../constants";
 import { ObjectId } from "mongoose";
 import { RequestJwt } from "../middlewares/jwt";
-import educatorModel, {
-  EducatorInterface,
-} from "../database/models/educator.model";
+import educatorModel from "../database/models/educator.model";
 
 export const UserController = {
   async register(
@@ -47,20 +45,29 @@ export const UserController = {
         return res.status(returnVal.getCode()).json(returnVal.getArray());
       }
       const user: UserInterface = UserServices.prepareUserData(reqBody);
+      let savedEduDoc;
       if (user.userType === "educator") {
         const educator = new educatorModel();
-        const savedEduDoc: EducatorInterface = await educator.save();
+        savedEduDoc = await educator.save();
         user.educatorId = savedEduDoc._id;
       }
-      const savedDoc: UserInterface = await UserFunctions.insert(user);
+      const savedUserDoc: UserInterface = await UserFunctions.insert(user);
       const token: string = jwt.sign(
-        { email: savedDoc.email, phone: savedDoc.phone, _id: savedDoc._id },
+        {
+          email: savedUserDoc.email,
+          phone: savedUserDoc.phone,
+          _id: savedUserDoc._id,
+        },
         TOKEN_KEY,
         {
           expiresIn: "2d",
         }
       );
-      return res.status(201).json({ user: savedDoc, token });
+      return res.status(201).json({
+        user: savedUserDoc,
+        educator: savedEduDoc,
+        token,
+      });
     } catch (error) {
       next(error);
     }
@@ -107,7 +114,15 @@ export const UserController = {
               expiresIn: "2d",
             }
           );
-          return res.status(200).json({ user, token });
+          let educator;
+          if (user.educatorId) {
+            educator = await educatorModel.findById(user.educatorId);
+          }
+          return res.status(200).json({
+            user,
+            educator,
+            token,
+          });
         } else {
           const returnVal = new Info(
             400,
@@ -153,7 +168,11 @@ export const UserController = {
           expiresIn: "2d",
         }
       );
-      return res.status(200).json({ user, token: newToken });
+      let educator;
+      if (user.educatorId) {
+        educator = await educatorModel.findById(user.educatorId);
+      }
+      return res.status(200).json({ user, educator, token: newToken });
     } catch (err) {
       const returnVal = new Info(401, "Invalid Token", ResponseTypes._ERROR_);
       return res.status(returnVal.getCode()).json(returnVal.getArray());
