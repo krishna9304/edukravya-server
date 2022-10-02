@@ -14,7 +14,6 @@ import {
   IS_ADMIN,
   IS_USER_ONLINE,
   JOIN_LECTURE,
-  LEAVE_ROOMS,
   PAUSE_USER,
   RECEIVE_MSG,
   SEND_MSG,
@@ -92,7 +91,6 @@ io.on(connection, (socket: Socket) => {
 
       if (isAdmin) {
         socket.on(GET_USER, () => {
-          console.log("asking for peerIds");
           socket.to(lectureId).emit(GET_USER);
         });
         socket.on(PAUSE_USER, () => {
@@ -103,7 +101,6 @@ io.on(connection, (socket: Socket) => {
         });
       } else {
         io.to(lectureId).emit(GET_STREAM, peerId);
-        console.log("emit GET_STREAM", peerId);
       }
       socket.emit(IS_ADMIN, isAdmin);
     }
