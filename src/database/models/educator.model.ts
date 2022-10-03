@@ -36,10 +36,18 @@ export interface TestimonialsReceivedInterface {
   featured: boolean;
 }
 
+export enum SUBJECTS_ALLOWED {
+  "PHYSICS",
+  "CHEMISTRY",
+  "MATHS",
+  "BIOLOGY",
+}
+
 export interface EducatorInterface extends Document {
   _id: ObjectId;
   pitchStatement: string;
   videoElevatorPitch: string;
+  subject: string;
   educationalQualifications:
     | SchemaDefinitionProperty<EducationalQualificationInterface[]>
     | undefined;
@@ -64,6 +72,10 @@ const Educator = new Schema<EducatorInterface>({
   videoElevatorPitch: {
     type: String,
     required: false,
+  },
+  subject: {
+    type: String,
+    enum: SUBJECTS_ALLOWED,
   },
   educationalQualifications: {
     type: Array<EducationalQualificationInterface>,
