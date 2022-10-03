@@ -9,6 +9,7 @@ export const TOKEN_KEY: string = process.env.TOKEN_KEY || "thisismelookatme";
 export const SERVER_URL: string = ISDEV
   ? "localhost:" + (process.env.PORT || "80")
   : process.env.SERVER_URL + "";
-export const CLIENT_URL: string =
-  process.env.CLIENT_URL + "https://edukravya-client.vercel.app";
+export const CLIENT_URL: string = ISDEV
+  ? "http://localhost:5173"
+  : process.env.CLIENT_URL + "";
 export const UPLOAD_PATH = path.join(__dirname, "..", "src", "uploads");
