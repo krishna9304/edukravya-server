@@ -1,4 +1,5 @@
 import { NextFunction, Response } from "express";
+import { SERVER_URL } from "../constants";
 import { ChatFunctions } from "../database/functions/chat.function";
 import userModel from "../database/models/user.model";
 import { compareParams, Info, ResponseTypes } from "../helpers/restHelper";
@@ -12,7 +13,7 @@ export const ChatController = {
   ): Promise<Response<any, Record<string, any>> | undefined> {
     try {
       const chatData = req.body;
-      const paramsReq: Array<string> = ["to", "content", "contentType"];
+      const paramsReq: Array<string> = ["to", "contentType"];
       const errors: String[] = compareParams(paramsReq, chatData);
       if (errors.length) {
         const returnVal = new Info(
@@ -26,6 +27,11 @@ export const ChatController = {
 
       const userExists = await userModel.exists({ userId: chatData.to });
       if (userExists) {
+        if (req.file) {
+          const url =
+            req.protocol + "://" + SERVER_URL + "/static/" + req.file.filename;
+          chatData.content = url;
+        }
         chatData.from = req.user?.userId;
         const chatDoc = await ChatFunctions.insert(chatData);
         return res.status(200).json(chatDoc);

@@ -8,6 +8,7 @@ import {
   connection,
   disconnect,
   ERROR,
+  GET_ONLINE_USERS,
   GET_STREAM,
   GET_USER,
   GET_USER_REQUEST,
@@ -18,6 +19,7 @@ import {
   RECEIVE_MSG,
   SEND_MSG,
 } from "./actions";
+import chatModel from "../database/models/chat.model";
 
 // init socket server
 const io = new Server(server, {
@@ -33,11 +35,17 @@ let onlineUsers: Map<string, string> = new Map();
 io.on(connection, (socket: Socket) => {
   // showAllOnlineUsers();
   socket.emit(connection);
+
   // populating online users
   socket.on(ADD_USER, async (userId) => {
     try {
       const userExists = await userModel.exists({ userId });
-      if (userExists) onlineUsers.set(socket.id, userId);
+      if (userExists) {
+        onlineUsers.set(socket.id, userId);
+        const userIds = [...onlineUsers.values()];
+        const users = await userModel.find({ userId: { $in: userIds } });
+        socket.broadcast.emit("ONLINE_USERS", users);
+      }
     } catch (error) {
       socket.emit(ERROR, error);
     }
@@ -51,25 +59,45 @@ io.on(connection, (socket: Socket) => {
   });
 
   // send message to a specific user
-  socket.on(SEND_MSG, ({ content, to }) => {
+  socket.on(SEND_MSG, async ({ to, chatDoc }) => {
     const users: Array<String> = [...onlineUsers.values()];
-    if (users.includes(to)) {
-      const onlineUsersReverseKeyVal = new Map();
 
-      onlineUsers.forEach((value, key) => {
-        onlineUsersReverseKeyVal.set(value, key);
-      });
-      const receiverSocket = onlineUsersReverseKeyVal.get(to);
-      socket.to(receiverSocket).emit(RECEIVE_MSG, {
-        content,
-        from: onlineUsers.get(socket.id),
-      });
+    if (users.includes(to)) {
+      try {
+        const onlineUsersReverseKeyVal = new Map();
+
+        onlineUsers.forEach((value, key) => {
+          onlineUsersReverseKeyVal.set(value, key);
+        });
+        const receiverSocket = onlineUsersReverseKeyVal.get(to);
+        socket.broadcast.to(receiverSocket).emit(RECEIVE_MSG, chatDoc);
+      } catch (error) {
+        socket.emit(ERROR, error);
+      }
     }
   });
 
-  socket.addListener(disconnect, () => {
+  // returns all the online users
+  socket.on(GET_ONLINE_USERS, async (userId) => {
+    try {
+      const userExists = await userModel.exists({ userId });
+      if (userExists) {
+        const userIds = [...onlineUsers.values()];
+        const users = await userModel.find({ userId: { $in: userIds } });
+        socket.emit("ONLINE_USERS", users);
+      }
+    } catch (error) {
+      socket.emit(ERROR, error);
+    }
+  });
+
+  socket.addListener(disconnect, async () => {
     console.log("Client disconnected: " + colors.red(socket.id));
     onlineUsers.delete(socket.id);
+    showAllOnlineUsers();
+    const userIds = [...onlineUsers.values()];
+    const users = await userModel.find({ userId: { $in: userIds } });
+    socket.broadcast.emit("ONLINE_USERS", users);
   });
 
   // webRTC

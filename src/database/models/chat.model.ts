@@ -8,12 +8,12 @@ import {
   StringSchemaDefinition,
 } from "mongoose";
 
-enum CONTENT_TYPE {
-  "TEXT",
-  "AUDIO",
-  "VIDEO",
-  "DOC",
-}
+const CONTENT_TYPE = {
+  TEXT: "TEXT",
+  AUDIO: "AUDIO",
+  VIDEO: "VIDEO",
+  DOC: "DOC",
+};
 export interface ChatInterface extends Document {
   _id: ObjectId;
   content: String;

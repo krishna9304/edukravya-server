@@ -34,10 +34,12 @@ export const ChatFunctions = {
         try {
           const chats: Array<ChatInterface> = await chatModel
             .find({
-              from,
-              to,
+              $or: [
+                { from, to },
+                { from: to, to: from },
+              ],
             })
-            .sort({ timestamp: 1 })
+            .sort({ timestamp: -1 })
             .limit(limit * 1)
             .skip((page - 1) * limit);
           resolve(chats);

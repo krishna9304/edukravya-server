@@ -5,6 +5,7 @@ export const IS_USER_ONLINE = "IS_USER_ONLINE";
 export const SEND_MSG = "SEND_MSG";
 export const RECEIVE_MSG = "RECEIVE_MSG";
 export const ERROR = "ERR";
+export const GET_ONLINE_USERS = "GET_ONLINE_USERS";
 
 // webRTC actions
 export const JOIN_LECTURE = "JOIN_LECTURE";
