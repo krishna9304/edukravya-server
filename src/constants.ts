@@ -13,3 +13,10 @@ export const CLIENT_URL: string = ISDEV
   ? "http://localhost:5173"
   : process.env.CLIENT_URL + "";
 export const UPLOAD_PATH = path.join(__dirname, "..", "src", "uploads");
+export const SCRIPT_PATH = path.join(
+  __dirname,
+  "..",
+  "src",
+  "scripts",
+  "steganography.py"
+);

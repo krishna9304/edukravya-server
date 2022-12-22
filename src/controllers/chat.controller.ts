@@ -1,9 +1,11 @@
 import { NextFunction, Response } from "express";
-import { SERVER_URL } from "../constants";
+import { SERVER_URL, UPLOAD_PATH } from "../constants";
 import { ChatFunctions } from "../database/functions/chat.function";
-import userModel from "../database/models/user.model";
+import userModel, { UserInterface } from "../database/models/user.model";
 import { compareParams, Info, ResponseTypes } from "../helpers/restHelper";
 import { RequestJwt } from "../middlewares/jwt";
+import { cryptFunction } from "../services/crypt.service";
+import crypto from "crypto";
 
 export const ChatController = {
   async post(
@@ -28,8 +30,16 @@ export const ChatController = {
       const userExists = await userModel.exists({ userId: chatData.to });
       if (userExists) {
         if (req.file) {
-          const url =
+          let url =
             req.protocol + "://" + SERVER_URL + "/static/" + req.file.filename;
+          if (chatData.embedData) {
+            const upload_path = UPLOAD_PATH + "/" + req.file.filename;
+            const args = ["-e", upload_path, "-t", chatData.embedData];
+            const encodedFileName: string = await cryptFunction(args);
+            url =
+              req.protocol + "://" + SERVER_URL + "/static/" + encodedFileName;
+            chatData.isEncrypted = true;
+          }
           chatData.content = url;
         }
         chatData.from = req.user?.userId;
@@ -93,6 +103,43 @@ export const ChatController = {
         Number(page)
       );
       return res.status(200).json(directMessages);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async decodeFile(
+    req: RequestJwt,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<any, Record<string, any>> | undefined> {
+    try {
+      const userId = req.user?.userId || "";
+      const { filename, passphrase } = req.body;
+      const user: UserInterface | null = await userModel.findOne({ userId });
+      let hash = crypto
+        .pbkdf2Sync(passphrase, String(user?.salt), 1000, 64, `sha512`)
+        .toString(`hex`);
+
+      if (user?.password == hash) {
+        const upload_path = UPLOAD_PATH + "/" + filename;
+        const args = ["-d", upload_path.trim()];
+        const decodedData: string = await cryptFunction(args);
+        const returnVal = new Info(
+          200,
+          "Image decoded successfully.",
+          ResponseTypes._INFO_,
+          { decoded_message: decodedData }
+        );
+        return res.status(returnVal.getCode()).json(returnVal.getArray());
+      } else {
+        const returnVal = new Info(
+          400,
+          "Passphrase didn't match.",
+          ResponseTypes._ERROR_
+        );
+        return res.status(returnVal.getCode()).json(returnVal.getArray());
+      }
     } catch (error) {
       next(error);
     }

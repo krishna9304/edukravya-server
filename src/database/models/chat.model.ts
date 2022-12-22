@@ -8,11 +8,12 @@ import {
   StringSchemaDefinition,
 } from "mongoose";
 
-const CONTENT_TYPE = {
+export const CONTENT_TYPE = {
   TEXT: "TEXT",
   AUDIO: "AUDIO",
   VIDEO: "VIDEO",
   DOC: "DOC",
+  IMAGE: "IMAGE",
 };
 export interface ChatInterface extends Document {
   _id: ObjectId;
@@ -21,6 +22,7 @@ export interface ChatInterface extends Document {
   to: Mixed | StringSchemaDefinition | undefined;
   timestamp: Date;
   contentType: String;
+  isEncrypted: Boolean;
 }
 
 const Chat = new Schema<ChatInterface>({
@@ -40,6 +42,7 @@ const Chat = new Schema<ChatInterface>({
     type: String,
     default: CONTENT_TYPE.TEXT,
   },
+  isEncrypted: { type: Boolean, default: false },
   timestamp: {
     type: Schema.Types.Date,
     default: Date.now,

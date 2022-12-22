@@ -13,5 +13,6 @@ chatRouter.post(
 );
 chatRouter.get("/inbox", Authenticate, ChatController.getInbox);
 chatRouter.get("/:to", Authenticate, ChatController.getChats);
+chatRouter.post("/decode", Authenticate, ChatController.decodeFile);
 
 export default chatRouter;

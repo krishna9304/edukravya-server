@@ -2,19 +2,27 @@ export class Info {
   code: number;
   message: string;
   type: string;
+  data: any;
 
-  constructor(code: number, message: string, type: string) {
+  constructor(code: number, message: string, type: string, data: any = null) {
     this.code = code;
     this.message = message;
     this.type = type;
+    this.data = data;
   }
 
   getArray(): {
     code: number;
     message: string;
     type: string;
+    data: any;
   } {
-    return { code: this.code, message: this.message, type: this.type };
+    return {
+      code: this.code,
+      message: this.message,
+      type: this.type,
+      data: this.data,
+    };
   }
   getCode(): number {
     return this.code;

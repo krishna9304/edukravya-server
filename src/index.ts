@@ -26,11 +26,11 @@ app.use(morgan("dev"));
 // Static file serving
 app.use("/static", express.static(UPLOAD_PATH));
 
-function haltOnTimedout(req: Request, res: Response, next: NextFunction) {
+function haltOnTimedout(req: Request, _: Response, next: NextFunction) {
   if (!req.timedout) next();
 }
 
-app.get("/", (req: Request, res: Response, next: NextFunction) => {
+app.get("/", (_: Request, res: Response, __: NextFunction) => {
   res.status(200).json({
     data: null,
     message: "Server running!",
